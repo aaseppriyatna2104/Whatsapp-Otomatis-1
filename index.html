@@ -422,8 +422,16 @@
 
     <div id="field-penukaran" style="display:none">
       <div class="form-group">
-        <label>Nomor Mesin Pengganti (Penukaran)</label>
-        <input type="text" id="mesin-pengganti" placeholder="MSN-2024-002" oninput="updatePreview()" />
+        <label>Mesin Pengganti (Penukaran)</label>
+        <select id="mesin-pengganti" onchange="updatePreview()">
+          <option value="">Pilih tipe...</option>
+          <option>Ldx Large</option>
+          <option>Ldx Medium</option>
+          <option>Ldx Small</option>
+          <option>Nas Large</option>
+          <option>Nas Medium</option>
+          <option>Nas Small</option>
+        </select>
       </div>
     </div>
 
