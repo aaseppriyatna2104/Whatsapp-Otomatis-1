@@ -360,18 +360,18 @@
     <div class="form-row">
       <div class="form-group">
         <label>Nomor Mesin <span class="req">*</span></label>
-        <input type="text" id="nomor-mesin" placeholder="MSN-2024-001" oninput="updatePreview()" />
+        <input type="text" id="nomor-mesin" placeholder="Mesin ReCharge" oninput="updatePreview()" />
       </div>
       <div class="form-group">
         <label>Tipe Mesin</label>
         <select id="tipe-mesin" onchange="updatePreview()">
           <option value="">Pilih tipe...</option>
-          <option>Mesin ATM</option>
-          <option>Mesin EDC</option>
-          <option>Mesin Vending</option>
-          <option>Mesin Fotokopi</option>
-          <option>Mesin CNC</option>
-          <option>Lainnya</option>
+          <option>Ldx Large</option>
+          <option>Ldx Medium</option>
+          <option>Ldx Small</option>
+          <option>Nas Large</option>
+          <option>Nas Medium</option>
+          <option>Nas Small</option>
         </select>
       </div>
     </div>
@@ -475,45 +475,43 @@ function buildPesan(data) {
     : '[tanggal]';
 
   const header = {
-    pemasangan:  '🔧 *KONFIRMASI PEMASANGAN MESIN*',
-    penarikan:   '📤 *KONFIRMASI PENARIKAN MESIN*',
-    pemindahan:  '🚚 *KONFIRMASI PEMINDAHAN MESIN*',
-    penukaran:   '🔄 *KONFIRMASI PENUKARAN MESIN*',
-  }[tipe] || '⚙️ *KONFIRMASI MESIN*';
+    pemasangan:  'KONFIRMASI PEMASANGAN MESIN',
+    penarikan:   'KONFIRMASI PENARIKAN MESIN',
+    pemindahan:  'KONFIRMASI PEMINDAHAN MESIN',
+    penukaran:   'KONFIRMASI PENUKARAN MESIN',
+  }[tipe] || 'KONFIRMASI MESIN';
 
   const detail = {
-    pemasangan: `Mesin baru akan dipasang di lokasi Anda.`,
-    penarikan:  `Mesin di lokasi Anda akan kami tarik kembali.`,
-    pemindahan: `Mesin Anda akan kami pindahkan ke lokasi baru.`,
-    penukaran:  `Mesin lama Anda akan kami tukar dengan unit baru.`,
+    pemasangan: `Mesin ReCharge akan dipasang di lokasi Anda.`,
+    penarikan:  `Mesin ReCharge di lokasi Anda akan kami tarik.`,
+    pemindahan: `Mesin ReCharge akan kami pindahkan ke lokasi baru.`,
+    penukaran:  `Mesin ReCharge akan kami tukar dengan unit baru.`,
   }[tipe] || '';
 
   let extra = '';
-  if (tipe === 'pemindahan' && lokasiTujuan) extra = `📍 Lokasi Tujuan : ${lokasiTujuan}\n`;
-  if (tipe === 'penukaran' && mesinPengganti) extra = `🔁 Mesin Baru   : ${mesinPengganti}\n`;
+  if (tipe === 'pemindahan' && lokasiTujuan) extra = `Lokasi Tujuan : ${lokasiTujuan}\n`;
+  if (tipe === 'penukaran' && mesinPengganti) extra = `Mesin Baru   : ${mesinPengganti}\n`;
 
   return `${header}
 
-Yth. ${nama || '[Nama Customer]'},
-
+Yth.Bapak/Ibu ${nama || '[Nama Customer]'},
+Perkenalkan saya Asep dari Tim Operasional ReCharge Ingin Konfirmasi bahwa
 ${detail}
 
-📋 Detail Jadwal:
+Detail Jadwal:
 ───────────────────
-👤 Nama        : ${nama || '-'}
-🔩 No. Mesin   : ${nomor || '-'}${jenisMesin ? '\n📦 Tipe Mesin  : '+jenisMesin : ''}
-📅 Tanggal     : ${tanggalFmt}
-🕐 Jam         : ${jam || '-'}
-📍 Lokasi      : ${lokasi || '-'}
-${extra}───────────────────
+Nama PIC       : ${nama || '-'}
+Mesin   : ${nomor || '-'}${jenisMesin ? '\n Tipe Mesin  : '+jenisMesin : ''}
+Tanggal     : ${tanggalFmt}
+Jam         : ${jam || '-'}
+Lokasi      : ${lokasi || '-'}
+${catatan ? `Alamat:\n${catatan}\n\n` : ''}tim kami akan di lokasi pada waktu yang telah dijadwalkan.
 
-${catatan ? `📝 Catatan:\n${catatan}\n\n` : ''}Mohon pastikan ada yang menerima tim kami di lokasi pada waktu yang telah dijadwalkan.
-
-Jika ada pertanyaan, balas pesan ini.
 
 Terima kasih 🙏
-Tim Layanan Mesin`;
+Tim Operasional ReCharge`;
 }
+
 
 // ─── Update Preview ───────────────────────────────
 function updatePreview() {
