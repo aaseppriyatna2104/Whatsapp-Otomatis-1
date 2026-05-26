@@ -120,6 +120,22 @@
 
     .form-group textarea { resize: vertical; min-height: 80px; }
 
+    /* Jam range */
+    .jam-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .jam-range input { flex: 1; }
+
+    .jam-range span {
+      font-size: 0.85rem;
+      color: var(--gray);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
     /* Tipe Konfirmasi Selector */
     .type-grid {
       display: grid;
@@ -266,6 +282,8 @@
       margin-bottom: 1rem;
     }
 
+    .hidden { display: none !important; }
+
     @media (max-width: 520px) {
       .form-row   { grid-template-columns: 1fr; }
       .type-grid  { grid-template-columns: 1fr 1fr; }
@@ -280,29 +298,28 @@
     <div class="icon">⚙️</div>
     <div>
       <h1>Sistem Konfirmasi Mesin ReCharge</h1>
-      <p>Kirim pesan WhatsApp </p>
+      <p>Kirim pesan WhatsApp</p>
     </div>
   </header>
-  
-<!-- Info wa.me -->
-<div class="card hidden">
-  <div class="card-title">🗨 Cara Kerja wa.me</div>
-  <div class="config-panel">
-    <strong style="font-size:0.85rem">Gratis, tanpa API, tanpa token:</strong>
-    <ol style="font-size:0.82rem;margin-top:6px;padding-left:1.2rem;line-height:1.8">
-      <li>Isi form data customer & jadwal di bawah</li>
-      <li>Klik tombol <strong>"Buka WhatsApp"</strong></li>
-      <li>WhatsApp Web / App terbuka dengan pesan siap kirim</li>
-      <li>Klik <strong>Send</strong> di WhatsApp — selesai!</li>
-    </ol>
+
+  <!-- Info wa.me (hidden) -->
+  <div class="card hidden">
+    <div class="card-title">🗨 Cara Kerja wa.me</div>
+    <div class="config-panel">
+      <strong style="font-size:0.85rem">Gratis, tanpa API, tanpa token:</strong>
+      <ol style="font-size:0.82rem;margin-top:6px;padding-left:1.2rem;line-height:1.8">
+        <li>Isi form data customer & jadwal di bawah</li>
+        <li>Klik tombol <strong>"Buka WhatsApp"</strong></li>
+        <li>WhatsApp Web / App terbuka dengan pesan siap kirim</li>
+        <li>Klik <strong>Send</strong> di WhatsApp — selesai!</li>
+      </ol>
+    </div>
+    <div class="form-group">
+      <label>Google Sheets Web App URL</label>
+      <input type="url" id="sheets-url" value="https://..." />
+    </div>
   </div>
 
-  <div class="form-group">
-    <label>Google Sheets Web App URL ...</label>
-    <input type="url" id="sheets-url" value="https://..." />
-  </div>
-</div>
-  
   <!-- Tipe Konfirmasi -->
   <div class="card">
     <div class="card-title">📋 Tipe Konfirmasi</div>
@@ -383,7 +400,11 @@
       </div>
       <div class="form-group">
         <label>Jam</label>
-        <input type="time" id="jam" value="09:00" oninput="updatePreview()" />
+        <div class="jam-range">
+          <input type="time" id="jam-mulai" value="09:00" oninput="updatePreview()" />
+          <span>s/d</span>
+          <input type="time" id="jam-selesai" value="12:00" oninput="updatePreview()" />
+        </div>
       </div>
     </div>
 
@@ -468,11 +489,13 @@ function selectType(el, tipe) {
 
 // ─── Template Pesan ───────────────────────────────
 function buildPesan(data) {
-  const { nama, nomor, tipe, mesin, jenisMesin, tanggal, jam, lokasi, lokasiTujuan, mesinPengganti, catatan } = data;
+  const { nama, nomor, tipe, mesin, jenisMesin, tanggal, jamMulai, jamSelesai, lokasi, lokasiTujuan, mesinPengganti, catatan } = data;
 
   const tanggalFmt = tanggal
     ? new Date(tanggal + 'T00:00').toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
     : '[tanggal]';
+
+  const jamFmt = jamMulai && jamSelesai ? `${jamMulai} s/d ${jamSelesai}` : jamMulai || '-';
 
   const header = {
     pemasangan:  'KONFIRMASI PEMASANGAN MESIN',
@@ -501,19 +524,18 @@ ${detail}
 Detail:
 ───────────────────
 Nama PIC       : ${nama || '-'}
-Mesin          : ${nomor || '-'}${jenisMesin ? '\n Tipe Mesin  : '+jenisMesin : ''}
+Mesin          : ${nomor || '-'}${jenisMesin ? '\nTipe Mesin   : '+jenisMesin : ''}
 Tanggal        : ${tanggalFmt}
-Jam            : ${jam || '-'}
+Jam            : ${jamFmt}
 Lokasi         : ${lokasi || '-'}
-${catatan ? `Catatan   :\n${catatan}\n\n` : ''}
+${extra}${catatan ? `Catatan   :\n${catatan}\n` : ''}
 ───────────────────
-tim kami akan di lokasi pada waktu yang telah dijadwalkan.
+Tim kami akan di lokasi pada waktu yang telah dijadwalkan.
 
 
 Terima kasih 🙏
 Tim Operasional ReCharge`;
 }
-
 
 // ─── Update Preview ───────────────────────────────
 function updatePreview() {
@@ -528,7 +550,8 @@ function getFormData() {
     tipe:            tipeAktif,
     jenisMesin:      document.getElementById('tipe-mesin').value,
     tanggal:         document.getElementById('tanggal').value,
-    jam:             document.getElementById('jam').value,
+    jamMulai:        document.getElementById('jam-mulai').value,
+    jamSelesai:      document.getElementById('jam-selesai').value,
     lokasi:          document.getElementById('lokasi').value.trim(),
     lokasiTujuan:    document.getElementById('lokasi-tujuan').value.trim(),
     mesinPengganti:  document.getElementById('mesin-pengganti').value.trim(),
@@ -571,7 +594,7 @@ function updateLog(el, msg, status) {
 // ─── Kirim ke Google Sheets ───────────────────────
 async function kirimKeSheets(data, pesan) {
   const url = document.getElementById('sheets-url').value.trim();
-  if (!url) return { ok: true, skip: true };
+  if (!url || url === 'https://...') return { ok: true, skip: true };
 
   const payload = { ...data, pesan, timestamp: new Date().toISOString() };
 
@@ -606,7 +629,7 @@ async function submitForm() {
 
   // Simpan sheets URL ke localStorage
   const sheetsUrl = document.getElementById('sheets-url').value.trim();
-  if (sheetsUrl) localStorage.setItem('sheets_url', sheetsUrl);
+  if (sheetsUrl && sheetsUrl !== 'https://...') localStorage.setItem('sheets_url', sheetsUrl);
 
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
