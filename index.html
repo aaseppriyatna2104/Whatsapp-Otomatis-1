@@ -360,7 +360,7 @@
     <div class="form-row">
       <div class="form-group">
         <label>Nomor Mesin <span class="req">*</span></label>
-        <input type="text" id="nomor-mesin" placeholder="Mesin ReCharge" oninput="updatePreview()" />
+        <input type="text" id="nomor-mesin" value="ReCharge Power Bank" readonly oninput="updatePreview()" />
       </div>
       <div class="form-group">
         <label>Tipe Mesin</label>
@@ -498,14 +498,16 @@ Yth.Bapak/Ibu ${nama || '[Nama Customer]'},
 Perkenalkan saya Asep dari Tim Operasional ReCharge Ingin Konfirmasi bahwa
 ${detail}
 
-Detail Jadwal:
+Detail:
 ───────────────────
 Nama PIC       : ${nama || '-'}
 Mesin          : ${nomor || '-'}${jenisMesin ? '\n Tipe Mesin  : '+jenisMesin : ''}
 Tanggal        : ${tanggalFmt}
 Jam            : ${jam || '-'}
 Lokasi         : ${lokasi || '-'}
-${catatan ? `Catatan   :\n${catatan}\n\n` : ''}tim kami akan di lokasi pada waktu yang telah dijadwalkan.
+${catatan ? `Catatan   :\n${catatan}\n\n` : ''}
+───────────────────
+tim kami akan di lokasi pada waktu yang telah dijadwalkan.
 
 
 Terima kasih 🙏
