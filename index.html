@@ -357,6 +357,61 @@
         </div>
       </label>
     </div>
+
+    <!-- Kombinasi -->
+    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:0.75rem 0 0.5rem;padding-top:0.75rem;border-top:1px solid var(--gray-light)">
+      🔀 Kombinasi
+    </div>
+    <div class="type-grid" id="type-grid-kombo">
+      <label class="type-card" onclick="selectType(this,'pemasangan+penarikan')">
+        <input type="radio" name="tipe" value="pemasangan+penarikan" />
+        <div>
+          <div class="emoji">🔧📤</div>
+          <div class="label">Pasang + Tarik</div>
+          <div class="sub">Install & cabut mesin</div>
+        </div>
+      </label>
+      <label class="type-card" onclick="selectType(this,'pemasangan+pemindahan')">
+        <input type="radio" name="tipe" value="pemasangan+pemindahan" />
+        <div>
+          <div class="emoji">🔧🚚</div>
+          <div class="label">Pasang + Pindah</div>
+          <div class="sub">Install & pindah lokasi</div>
+        </div>
+      </label>
+      <label class="type-card" onclick="selectType(this,'pemasangan+penukaran')">
+        <input type="radio" name="tipe" value="pemasangan+penukaran" />
+        <div>
+          <div class="emoji">🔧🔄</div>
+          <div class="label">Pasang + Tukar</div>
+          <div class="sub">Install & tukar unit</div>
+        </div>
+      </label>
+      <label class="type-card" onclick="selectType(this,'penarikan+pemindahan')">
+        <input type="radio" name="tipe" value="penarikan+pemindahan" />
+        <div>
+          <div class="emoji">📤🚚</div>
+          <div class="label">Tarik + Pindah</div>
+          <div class="sub">Cabut & pindah lokasi</div>
+        </div>
+      </label>
+      <label class="type-card" onclick="selectType(this,'penarikan+penukaran')">
+        <input type="radio" name="tipe" value="penarikan+penukaran" />
+        <div>
+          <div class="emoji">📤🔄</div>
+          <div class="label">Tarik + Tukar</div>
+          <div class="sub">Cabut & tukar unit</div>
+        </div>
+      </label>
+      <label class="type-card" onclick="selectType(this,'pemindahan+penukaran')">
+        <input type="radio" name="tipe" value="pemindahan+penukaran" />
+        <div>
+          <div class="emoji">🚚🔄</div>
+          <div class="label">Pindah + Tukar</div>
+          <div class="sub">Pindah lokasi & tukar unit</div>
+        </div>
+      </label>
+    </div>
   </div>
 
   <!-- Form Data -->
@@ -379,6 +434,7 @@
         <label>Nama Mesin <span class="req">*</span></label>
         <input type="text" id="nomor-mesin" value="ReCharge Power Bank" readonly oninput="updatePreview()" />
       </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Tipe Mesin</label>
         <select id="tipe-mesin" onchange="updatePreview()">
@@ -390,6 +446,10 @@
           <option>Nas Medium</option>
           <option>Nas Small</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Jumlah Mesin <span class="req">*</span></label>
+        <input type="number" id="jumlah-mesin" placeholder="1" min="1" value="1" oninput="updatePreview()" />
       </div>
     </div>
 
@@ -490,14 +550,17 @@ function selectType(el, tipe) {
   el.classList.add('selected');
   tipeAktif = tipe;
 
-  document.getElementById('field-pemindahan').style.display = tipe === 'pemindahan' ? 'block' : 'none';
-  document.getElementById('field-penukaran').style.display  = tipe === 'penukaran'  ? 'block' : 'none';
+  const needsPemindahan = ['pemindahan','pemasangan+pemindahan','penarikan+pemindahan','pemindahan+penukaran'].includes(tipe);
+  const needsPenukaran  = ['penukaran','pemasangan+penukaran','penarikan+penukaran','pemindahan+penukaran'].includes(tipe);
+
+  document.getElementById('field-pemindahan').style.display = needsPemindahan ? 'block' : 'none';
+  document.getElementById('field-penukaran').style.display  = needsPenukaran  ? 'block' : 'none';
   updatePreview();
 }
 
 // ─── Template Pesan ───────────────────────────────
 function buildPesan(data) {
-  const { nama, nomor, tipe, mesin, jenisMesin, tanggal, jamMulai, jamSelesai, lokasi, lokasiTujuan, mesinPengganti, catatan } = data;
+  const { nama, nomor, tipe, mesin, jenisMesin, jumlahMesin, tanggal, jamMulai, jamSelesai, lokasi, lokasiTujuan, mesinPengganti, catatan } = data;
 
   const tanggalFmt = tanggal
     ? new Date(tanggal + 'T00:00').toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
@@ -505,23 +568,42 @@ function buildPesan(data) {
 
   const jamFmt = jamMulai && jamSelesai ? `${jamMulai} s/d ${jamSelesai}` : jamMulai || '-';
 
-  const header = {
-    pemasangan:  'KONFIRMASI PEMASANGAN MESIN',
-    penarikan:   'KONFIRMASI PENARIKAN MESIN',
-    pemindahan:  'KONFIRMASI PEMINDAHAN MESIN',
-    penukaran:   'KONFIRMASI PENUKARAN MESIN',
-  }[tipe] || 'KONFIRMASI MESIN';
+  const labelMap = {
+    'pemasangan':             'KONFIRMASI PEMASANGAN MESIN',
+    'penarikan':              'KONFIRMASI PENARIKAN MESIN',
+    'pemindahan':             'KONFIRMASI PEMINDAHAN MESIN',
+    'penukaran':              'KONFIRMASI PENUKARAN MESIN',
+    'pemasangan+penarikan':   'KONFIRMASI PEMASANGAN & PENARIKAN MESIN',
+    'pemasangan+pemindahan':  'KONFIRMASI PEMASANGAN & PEMINDAHAN MESIN',
+    'pemasangan+penukaran':   'KONFIRMASI PEMASANGAN & PENUKARAN MESIN',
+    'penarikan+pemindahan':   'KONFIRMASI PENARIKAN & PEMINDAHAN MESIN',
+    'penarikan+penukaran':    'KONFIRMASI PENARIKAN & PENUKARAN MESIN',
+    'pemindahan+penukaran':   'KONFIRMASI PEMINDAHAN & PENUKARAN MESIN',
+  };
 
-  const detail = {
-    pemasangan: `Mesin ReCharge akan dipasang di lokasi.`,
-    penarikan:  `Mesin ReCharge di lokasi akan kami tarik.`,
-    pemindahan: `Mesin ReCharge akan kami pindahkan ke lokasi baru.`,
-    penukaran:  `Mesin ReCharge akan kami tukar dengan unit baru.`,
-  }[tipe] || '';
+  const detailMap = {
+    'pemasangan':             'Mesin ReCharge akan dipasang di lokasi.',
+    'penarikan':              'Mesin ReCharge di lokasi akan kami tarik.',
+    'pemindahan':             'Mesin ReCharge akan kami pindahkan ke lokasi baru.',
+    'penukaran':              'Mesin ReCharge akan kami tukar dengan unit baru.',
+    'pemasangan+penarikan':   'Mesin ReCharge akan dipasang di lokasi baru, sekaligus penarikan mesin lama.',
+    'pemasangan+pemindahan':  'Mesin ReCharge akan dipasang di lokasi, sekaligus pemindahan ke lokasi baru.',
+    'pemasangan+penukaran':   'Mesin ReCharge akan dipasang sekaligus ditukar dengan unit baru.',
+    'penarikan+pemindahan':   'Mesin ReCharge di lokasi akan kami tarik sekaligus dipindahkan ke lokasi baru.',
+    'penarikan+penukaran':    'Mesin ReCharge di lokasi akan kami tarik sekaligus ditukar dengan unit baru.',
+    'pemindahan+penukaran':   'Mesin ReCharge akan kami pindahkan ke lokasi baru sekaligus ditukar dengan unit baru.',
+  };
+
+  const header = labelMap[tipe] || 'KONFIRMASI MESIN';
+  const detail = detailMap[tipe] || '';
 
   let extra = '';
-  if (tipe === 'pemindahan' && lokasiTujuan) extra = `Lokasi Tujuan : ${lokasiTujuan}\n`;
-  if (tipe === 'penukaran' && mesinPengganti) extra = `Mesin Baru   : ${mesinPengganti}\n`;
+  const needsPemindahan = ['pemindahan','pemasangan+pemindahan','penarikan+pemindahan','pemindahan+penukaran'].includes(tipe);
+  const needsPenukaran  = ['penukaran','pemasangan+penukaran','penarikan+penukaran','pemindahan+penukaran'].includes(tipe);
+  if (needsPemindahan && lokasiTujuan) extra += `Lokasi Tujuan : ${lokasiTujuan}\n`;
+  if (needsPenukaran  && mesinPengganti) extra += `Mesin Baru   : ${mesinPengganti}\n`;
+
+  const jumlahFmt = jumlahMesin && jumlahMesin !== '1' ? `\nJumlah Mesin : ${jumlahMesin} unit` : jumlahMesin ? `\nJumlah Mesin : ${jumlahMesin} unit` : '';
 
   return `${header}
 
@@ -532,7 +614,7 @@ ${detail}
 Detail:
 ───────────────────
 Nama PIC       : ${nama || '-'}
-Mesin          : ${nomor || '-'}${jenisMesin ? '\nTipe Mesin   : '+jenisMesin : ''}
+Mesin          : ${nomor || '-'}${jenisMesin ? '\nTipe Mesin   : '+jenisMesin : ''}${jumlahFmt}
 Tanggal        : ${tanggalFmt}
 Estimasi Jam   : ${jamFmt}
 Lokasi         : ${lokasi || '-'}
@@ -556,6 +638,7 @@ function getFormData() {
     nomor:           document.getElementById('nomor-mesin').value.trim(),
     tipe:            tipeAktif,
     jenisMesin:      document.getElementById('tipe-mesin').value,
+    jumlahMesin:     document.getElementById('jumlah-mesin').value.trim(),
     tanggal:         document.getElementById('tanggal').value,
     jamMulai:        document.getElementById('jam-mulai').value,
     jamSelesai:      document.getElementById('jam-selesai').value,
